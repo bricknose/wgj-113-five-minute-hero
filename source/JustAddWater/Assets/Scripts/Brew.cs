@@ -44,9 +44,9 @@ public class Brew : MonoBehaviour
         SetEssence(rowIndex + 1, columnIndex, startingEssence);
     }
 
-    public EssenceSettle[] Settle()
+    public SettleResult[] Settle()
     {
-        var settleList = new List<EssenceSettle>();
+        var settleList = new List<SettleResult>();
 
         for (var rowIndex = 3; rowIndex >= 0; rowIndex--)
         {
@@ -60,7 +60,7 @@ public class Brew : MonoBehaviour
                 if (settledRows > 0)
                 {
                     var newRowIndex = rowIndex + settledRows;
-                    settleList.Add(new EssenceSettle
+                    settleList.Add(new SettleResult
                     {
                         essence = thisEssence,
                         newRowIndex = newRowIndex,
@@ -130,7 +130,7 @@ public class Brew : MonoBehaviour
         return essence == null ? $"[  :  ]" : $"[{essence}]";
     }
 
-    public struct EssenceSettle
+    public struct SettleResult
     {
         public int oldRowIndex;
         public int newRowIndex;
