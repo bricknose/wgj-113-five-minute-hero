@@ -13,8 +13,7 @@ public class BrewDebugger : MonoBehaviour
         KeyCode.Alpha1,
         KeyCode.Alpha2,
         KeyCode.Alpha3,
-        KeyCode.Alpha4,
-        KeyCode.Alpha5
+        KeyCode.Alpha4
     };
 
     void Awake()
