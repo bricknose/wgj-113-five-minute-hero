@@ -16,3 +16,9 @@ Once the desired indexes have been entered, press the **E key** to stir clockwis
 For example, to stir a region from row 1 to row 2 and column 3 to column 4 clockwise, enter **1** and **3**, then press **E**.
 
 Be sure to then press **spacebar** to view the cauldron brew's output and see how things have changed.
+
+### Settling the Brew
+
+Press the **R key** to settle the brew. Settling causes all essences to drop to the bottom of the grid as far as they can.
+
+Be sure to then press **spacebar** to view the cauldron brew's output and see how things have changed.

@@ -54,6 +54,11 @@ public class BrewDebugger : MonoBehaviour
             Debug.Log($"Stirring counter-clockwise at ({rowIndex},{columnIndex})");
             _brew.StirCounterclockwise(rowIndex, columnIndex);
         }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            _brew.Settle();
+        }
     }
 
     private class RollingQueue<T>

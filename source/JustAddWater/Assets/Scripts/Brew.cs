@@ -10,8 +10,6 @@ public class Brew : MonoBehaviour
     [SerializeField]
     private Essence[] _contents;
 
-    // Debugging
-
     public Brew()
     {
         _contents = new Essence[25];
@@ -44,6 +42,39 @@ public class Brew : MonoBehaviour
         SetEssence(rowIndex, columnIndex + 1, GetEssence(rowIndex + 1, columnIndex + 1));
         SetEssence(rowIndex + 1, columnIndex + 1, GetEssence(rowIndex + 1, columnIndex));
         SetEssence(rowIndex + 1, columnIndex, startingEssence);
+    }
+
+    public void Settle()
+    {
+        for (var rowIndex = 3; rowIndex >= 0; rowIndex--)
+        {
+            for (var columnIndex = 0; columnIndex < 5; columnIndex++)
+            {
+                SettleEssence(rowIndex, columnIndex);
+            }
+        }
+    }
+
+    private void SettleEssence(int rowIndex, int columnIndex)
+    {
+        int rowsToSettle = 0;
+
+        for (var currentRowIndex = 4; currentRowIndex > rowIndex; currentRowIndex--)
+        {
+            if (GetEssence(currentRowIndex, columnIndex) != null)
+            {
+                rowsToSettle = 0;
+                continue;
+            }
+
+            rowsToSettle++;
+        }
+
+        if (rowsToSettle > 0)
+        {
+            SetEssence(rowIndex + rowsToSettle, columnIndex, GetEssence(rowIndex, columnIndex));
+            SetEssence(rowIndex, columnIndex, null);
+        }
     }
 
     private Essence GetEssence(int rowIndex, int columnIndex)
