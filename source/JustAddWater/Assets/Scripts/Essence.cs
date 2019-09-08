@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Data", menuName = "ScriptableObjects/HeroEssence", order = 1)]
-public class HeroEssence : ScriptableObject
+public class Essence : ScriptableObject
 {
     public int Value;
     public EssenceType Type;
 
     public enum EssenceType
     {
-        Health,
-        Attack,
-        Defense,
-        Magic,
-        Resistance,
-        Wild
+        Health = 1,
+        Attack = 2,
+        Defense = 3,
+        Magic = 4,
+        Resistance = 5,
+        Wild = 100
     }
 
     public override string ToString()

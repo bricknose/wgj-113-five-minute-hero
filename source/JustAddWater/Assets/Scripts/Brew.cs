@@ -5,14 +5,16 @@ using System.Text;
 using Unity.Collections;
 using UnityEngine;
 
-public class CauldronBrew : MonoBehaviour
+public class Brew : MonoBehaviour
 {
     [SerializeField]
-    private HeroEssence[] _contents;
+    private Essence[] _contents;
 
-    public CauldronBrew()
+    // Debugging
+
+    public Brew()
     {
-        _contents = new HeroEssence[25];
+        _contents = new Essence[25];
     }
 
     // Start is called before the first frame update
@@ -24,21 +26,14 @@ public class CauldronBrew : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        UpdateDebug();
     }
 
-    private void UpdateDebug()
+    public void StirClockwise(int rowIndex, int columnIndex)
     {
-#if UNITY_EDITOR
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Debug.Log(ToString());
-        }
 
-#endif
     }
 
-    private HeroEssence GetEssence(int rowIndex, int columnIndex)
+    private Essence GetEssence(int rowIndex, int columnIndex)
     {
         return _contents[rowIndex * 5 + columnIndex];
     }
@@ -60,7 +55,7 @@ public class CauldronBrew : MonoBehaviour
         return stringBuilder.ToString();
     }
 
-    private static string GetEssenceString(HeroEssence essence)
+    private static string GetEssenceString(Essence essence)
     {
         return essence == null ? $"[  :  ]" : $"[{essence}]";
     }
