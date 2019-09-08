@@ -30,12 +30,30 @@ public class Brew : MonoBehaviour
 
     public void StirClockwise(int rowIndex, int columnIndex)
     {
+        var startingEssence = GetEssence(rowIndex, columnIndex);
+        SetEssence(rowIndex, columnIndex, GetEssence(rowIndex + 1, columnIndex));
+        SetEssence(rowIndex + 1, columnIndex, GetEssence(rowIndex + 1, columnIndex + 1));
+        SetEssence(rowIndex + 1, columnIndex + 1, GetEssence(rowIndex, columnIndex + 1));
+        SetEssence(rowIndex, columnIndex + 1, startingEssence);
+    }
 
+    public void StirCounterclockwise(int rowIndex, int columnIndex)
+    {
+        var startingEssence = GetEssence(rowIndex, columnIndex);
+        SetEssence(rowIndex, columnIndex, GetEssence(rowIndex, columnIndex + 1));
+        SetEssence(rowIndex, columnIndex + 1, GetEssence(rowIndex + 1, columnIndex + 1));
+        SetEssence(rowIndex + 1, columnIndex + 1, GetEssence(rowIndex + 1, columnIndex));
+        SetEssence(rowIndex + 1, columnIndex, startingEssence);
     }
 
     private Essence GetEssence(int rowIndex, int columnIndex)
     {
         return _contents[rowIndex * 5 + columnIndex];
+    }
+
+    private void SetEssence(int rowIndex, int columnIndex, Essence essence)
+    {
+        _contents[rowIndex * 5 + columnIndex] = essence;
     }
 
     public override string ToString()
