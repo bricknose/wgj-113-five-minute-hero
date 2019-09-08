@@ -44,20 +44,39 @@ public class Brew : MonoBehaviour
         SetEssence(rowIndex + 1, columnIndex, startingEssence);
     }
 
-    public void Settle()
+    public EssenceSettle[] Settle()
     {
+        var settleList = new List<EssenceSettle>();
+
         for (var rowIndex = 3; rowIndex >= 0; rowIndex--)
         {
             for (var columnIndex = 0; columnIndex < 5; columnIndex++)
             {
-                SettleEssence(rowIndex, columnIndex);
+                var thisEssence = GetEssence(rowIndex, columnIndex);
+                if (!thisEssence)
+                    continue;
+
+                var settledRows = SettleEssence(rowIndex, columnIndex);
+                if (settledRows > 0)
+                {
+                    var newRowIndex = rowIndex + settledRows;
+                    settleList.Add(new EssenceSettle
+                    {
+                        essence = thisEssence,
+                        newRowIndex = newRowIndex,
+                        oldRowIndex = rowIndex,
+                        columnIndex = columnIndex
+                    });
+                }
             }
         }
+
+        return settleList.ToArray();
     }
 
-    private void SettleEssence(int rowIndex, int columnIndex)
+    private int SettleEssence(int rowIndex, int columnIndex)
     {
-        int rowsToSettle = 0;
+        var rowsToSettle = 0;
 
         for (var currentRowIndex = 4; currentRowIndex > rowIndex; currentRowIndex--)
         {
@@ -75,6 +94,8 @@ public class Brew : MonoBehaviour
             SetEssence(rowIndex + rowsToSettle, columnIndex, GetEssence(rowIndex, columnIndex));
             SetEssence(rowIndex, columnIndex, null);
         }
+
+        return rowsToSettle;
     }
 
     private Essence GetEssence(int rowIndex, int columnIndex)
@@ -107,5 +128,18 @@ public class Brew : MonoBehaviour
     private static string GetEssenceString(Essence essence)
     {
         return essence == null ? $"[  :  ]" : $"[{essence}]";
+    }
+
+    public struct EssenceSettle
+    {
+        public int oldRowIndex;
+        public int newRowIndex;
+        public int columnIndex;
+        public Essence essence;
+
+        public override string ToString()
+        {
+            return $"{GetEssenceString(essence)}:[{oldRowIndex},{columnIndex}]->[{newRowIndex},{columnIndex}]";
+        }
     }
 }

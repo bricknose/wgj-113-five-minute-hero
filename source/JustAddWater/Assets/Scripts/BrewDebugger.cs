@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 public class BrewDebugger : MonoBehaviour
@@ -57,7 +58,20 @@ public class BrewDebugger : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.R))
         {
-            _brew.Settle();
+            var settleResults = _brew.Settle();
+            if (settleResults.Length == 0)
+            {
+                Debug.Log("No change after settling the brew.");
+            }
+            else
+            {
+                var stringBuilder = new StringBuilder();
+                foreach (var settleResult in settleResults)
+                {
+                    stringBuilder.AppendLine(settleResult.ToString());
+                }
+                Debug.Log(stringBuilder.ToString());
+            }
         }
     }
 
