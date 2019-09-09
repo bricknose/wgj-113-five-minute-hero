@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -65,10 +66,28 @@ public class BrewDebugger : MonoBehaviour
             }
             else
             {
-                var stringBuilder = new StringBuilder();
+                var stringBuilder = new StringBuilder("Settling results:" + Environment.NewLine);
                 foreach (var settleResult in settleResults)
                 {
                     stringBuilder.AppendLine(settleResult.ToString());
+                }
+                Debug.Log(stringBuilder.ToString());
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            var resolvedMatches = _brew.ResolveMatches();
+            if (resolvedMatches.Length == 0)
+            {
+                Debug.Log("No matches found.");
+            }
+            else
+            {
+                var stringBuilder = new StringBuilder("Matching results:" + Environment.NewLine);
+                foreach (var resolvedMatch in resolvedMatches)
+                {
+                    stringBuilder.AppendLine(resolvedMatch.ToString());
                 }
                 Debug.Log(stringBuilder.ToString());
             }

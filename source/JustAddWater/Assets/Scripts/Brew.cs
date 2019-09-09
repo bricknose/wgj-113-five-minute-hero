@@ -1,14 +1,20 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Unity.Collections;
 using UnityEngine;
+using Assets.Scripts;
 
 public class Brew : MonoBehaviour
 {
+    public EssenceMatch[] Matches;
+
     [SerializeField]
     private Essence[] _contents;
+
+    private Dictionary<Essence, EssenceMatch> _matchMap;
 
     public Brew()
     {
@@ -18,7 +24,7 @@ public class Brew : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        _matchMap = Matches.ToDictionary(k => k.PrimaryMatch);
     }
 
     // Update is called once per frame
@@ -62,16 +68,133 @@ public class Brew : MonoBehaviour
                     var newRowIndex = rowIndex + settledRows;
                     settleList.Add(new SettleResult
                     {
-                        essence = thisEssence,
-                        newRowIndex = newRowIndex,
-                        oldRowIndex = rowIndex,
-                        columnIndex = columnIndex
+                        Essence = thisEssence,
+                        NewRowIndex = newRowIndex,
+                        OldRowIndex = rowIndex,
+                        ColumnIndex = columnIndex
                     });
                 }
             }
         }
 
         return settleList.ToArray();
+    }
+
+    public MatchResult[] ResolveMatches()
+    {
+        var results = new List<MatchResult>();
+
+        for (var rowIndex = 0; rowIndex < 3; rowIndex++)
+        {
+            for (var columnIndex = 0; columnIndex < 3; columnIndex++)
+            {
+                var bestHorizontalMatch = FindBestHorizontalMatch(rowIndex, columnIndex, columnIndex + 2);
+                var bestVerticalMatch = FindBestVerticalMatch(rowIndex, rowIndex + 2, columnIndex);
+                var bestMatch = FindBestMatch(bestHorizontalMatch, bestVerticalMatch);
+                if (bestMatch)
+                {
+                    var resolvedMatch = bestMatch == bestHorizontalMatch
+                        ? ResolveMatch(rowIndex, rowIndex, columnIndex, columnIndex + 2, bestMatch)
+                        : ResolveMatch(rowIndex, rowIndex + 2, columnIndex, columnIndex, bestMatch);
+
+                    results.Add(resolvedMatch);
+                }
+            }
+        }
+
+        return results.ToArray();
+    }
+
+    private EssenceMatch FindBestVerticalMatch(int rowStartIndex, int rowEndIndex, int columnIndex)
+    {
+        var rowRange = rowStartIndex.To(rowEndIndex);
+        var possibleMatches = rowRange
+            .Select(thisRowIndex => GetEssence(thisRowIndex, columnIndex))
+            .Where(essence => essence && _matchMap.ContainsKey(essence))
+            .Select(essence => _matchMap[essence])
+            .Distinct()
+            .OrderByDescending(essence => Math.Abs(essence.PrimaryMatch.Value));
+
+        foreach (var possibleMatch in possibleMatches)
+        {
+            var isViableMatch = rowRange
+                .Select(thisRowIndex => GetEssence(thisRowIndex, columnIndex))
+                .All(thisEssence => thisEssence &&
+                                    (thisEssence.Type == possibleMatch.PrimaryMatch.Type ||
+                                    thisEssence.Type == possibleMatch.SecondaryMatch.Type));
+            if (isViableMatch)
+            {
+                return possibleMatch;
+            }
+        }
+
+        return null;
+    }
+
+    private EssenceMatch FindBestHorizontalMatch(int rowIndex, int columnStartIndex, int columnEndIndex)
+    {
+        var columnRange = columnStartIndex.To(columnEndIndex);
+        var possibleMatches = columnRange
+            .Select(thisColumnIndex => GetEssence(rowIndex, thisColumnIndex))
+            .Where(essence => essence && _matchMap.ContainsKey(essence))
+            .Select(essence => _matchMap[essence])
+            .Distinct()
+            .OrderByDescending(essence => Math.Abs(essence.PrimaryMatch.Value));
+
+        foreach (var possibleMatch in possibleMatches)
+        {
+            var isViableMatch = columnRange
+                .Select(thisColumnIndex => GetEssence(rowIndex, thisColumnIndex))
+                .All(thisEssence => thisEssence &&
+                                    (thisEssence.Type == possibleMatch.PrimaryMatch.Type ||
+                                     thisEssence.Type == possibleMatch.SecondaryMatch.Type));
+            if (isViableMatch)
+            {
+                return possibleMatch;
+            }
+        }
+
+        return null;
+    }
+
+    private EssenceMatch FindBestMatch(EssenceMatch firstMatch, EssenceMatch secondMatch)
+    {
+        if (!firstMatch)
+            return secondMatch;
+
+        if (!secondMatch)
+            return firstMatch;
+
+        return Math.Abs(firstMatch.PrimaryMatch.Value) > Math.Abs(secondMatch.PrimaryMatch.Value) ? firstMatch : secondMatch;
+    }
+
+    private MatchResult ResolveMatch(int rowStartIndex, int rowEndIndex, int columnStartIndex, int columnEndIndex,
+        EssenceMatch match)
+    {
+        var matchedEssences = new List<Essence>();
+
+        for (var rowIndex = rowStartIndex; rowIndex > rowEndIndex; rowIndex++)
+        {
+            for (var columnIndex = columnStartIndex; columnIndex > columnEndIndex; columnIndex++)
+            {
+                matchedEssences.Add(GetEssence(rowIndex, columnIndex));
+                SetEssence(rowIndex, columnIndex, null);
+            }
+        }
+
+        var matchResult = new MatchResult
+        {
+            RowStartIndex = rowStartIndex,
+            RowEndIndex = rowEndIndex,
+            ColumnStartIndex = columnStartIndex,
+            ColumnEndIndex = columnEndIndex,
+            MatchType = match,
+            Essences = matchedEssences.ToArray()
+        };
+
+        SetEssence(matchResult.MatchCenterRowIndex, matchResult.MatchCenterColumnIndex, match.MatchResult);
+
+        return matchResult;
     }
 
     private int SettleEssence(int rowIndex, int columnIndex)
@@ -132,14 +255,31 @@ public class Brew : MonoBehaviour
 
     public struct SettleResult
     {
-        public int oldRowIndex;
-        public int newRowIndex;
-        public int columnIndex;
-        public Essence essence;
+        public int OldRowIndex;
+        public int NewRowIndex;
+        public int ColumnIndex;
+        public Essence Essence;
 
         public override string ToString()
         {
-            return $"{GetEssenceString(essence)}:[{oldRowIndex},{columnIndex}]->[{newRowIndex},{columnIndex}]";
+            return $"{GetEssenceString(Essence)}:[{OldRowIndex},{ColumnIndex}]->[{NewRowIndex},{ColumnIndex}]";
+        }
+    }
+
+    public struct MatchResult
+    {
+        public int RowStartIndex;
+        public int RowEndIndex;
+        public int ColumnStartIndex;
+        public int ColumnEndIndex;
+        public Essence[] Essences;
+        public EssenceMatch MatchType;
+        public int MatchCenterRowIndex => (RowStartIndex + RowEndIndex) / 2;
+        public int MatchCenterColumnIndex => (ColumnStartIndex + ColumnEndIndex) / 2;
+
+        public override string ToString()
+        {
+            return $"[{RowStartIndex},{ColumnStartIndex}]-[{RowEndIndex},{ColumnEndIndex}]:{string.Join("+", Essences.Select(e => e.ToString()))}={MatchType.MatchResult}";
         }
     }
 }

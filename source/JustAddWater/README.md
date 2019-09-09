@@ -22,3 +22,9 @@ Be sure to then press **spacebar** to view the cauldron brew's output and see ho
 Press the **R key** to settle the brew. Settling causes all essences to drop to the bottom of the grid as far as they can.
 
 Be sure to then press **spacebar** to view the cauldron brew's output and see how things have changed.
+
+### Check for Matches
+
+Press the **F key** to find any matches in the brew.
+
+Be sure to then press **spacebar** to view the cauldron brew's output and see how things have changed.
