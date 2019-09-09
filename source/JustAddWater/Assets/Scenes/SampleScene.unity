@@ -233,7 +233,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c585eb7cda0818d4bbc9f2e2b9a1e914, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cauldron: {fileID: 1248756117}
 --- !u!4 &1248756116
 Transform:
   m_ObjectHideFlags: 0
