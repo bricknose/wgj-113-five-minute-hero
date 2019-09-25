@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>JustAddWater.Logic</AssemblyName>
+    <RootNamespace>JustAddWater.Logic</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <OutputPath>..\..\JustAddWater\Assets\Packages\</OutputPath>
+    <PreserveCompilationContext>false</PreserveCompilationContext>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <GenerateDepsFile>False</GenerateDepsFile>
+    <!-- TODO: Find a way to eliminate deps.json file generation instead of just redirecting it -->
+    <ProjectDepsFilePath>.\bin\Release\netstandard2.0\JustAddWater.Logic.deps.json</ProjectDepsFilePath>
+  </PropertyGroup>
+
+</Project>

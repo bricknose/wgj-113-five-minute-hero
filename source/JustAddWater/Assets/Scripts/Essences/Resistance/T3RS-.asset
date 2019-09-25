@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64ede93306201be4187562abe52c3f43, type: 3}
   m_Name: T3RS-
   m_EditorClassIdentifier: 
-  Value: -4
-  Type: 5
+  _value: -4
+  _type: 5

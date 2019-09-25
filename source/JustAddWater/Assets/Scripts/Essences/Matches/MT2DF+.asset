@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f5178b90a2099e4cae41ff61ed26709, type: 3}
   m_Name: MT2DF+
   m_EditorClassIdentifier: 
-  PrimaryMatch: {fileID: 11400000, guid: 8908175cb1dd6244d8fb0b7f5a0bad97, type: 2}
-  SecondaryMatch: {fileID: 11400000, guid: 93e192f659810f148885f96d96e74a10, type: 2}
-  MatchResult: {fileID: 11400000, guid: 19ad6d6fb9eef994bbe6c777f5ac778e, type: 2}
+  _primaryMatch: {fileID: 11400000, guid: 8908175cb1dd6244d8fb0b7f5a0bad97, type: 2}
+  _secondaryMatch: {fileID: 11400000, guid: 93e192f659810f148885f96d96e74a10, type: 2}
+  _matchResult: {fileID: 11400000, guid: 19ad6d6fb9eef994bbe6c777f5ac778e, type: 2}

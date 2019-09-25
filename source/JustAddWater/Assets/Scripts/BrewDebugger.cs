@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using JustAddWater.Logic;
 using UnityEngine;
 
 public class BrewDebugger : MonoBehaviour
@@ -46,7 +47,7 @@ public class BrewDebugger : MonoBehaviour
             var rowIndex = _rollingNumbers.Peek(1);
             var columnIndex = _rollingNumbers.Peek();
             Debug.Log($"Stirring clockwise at ({rowIndex},{columnIndex})");
-            _brew.StirClockwise(rowIndex, columnIndex);
+            BrewLogic.StirClockwise(_brew.Contents, rowIndex, columnIndex);
         }
 
         if (Input.GetKeyDown(KeyCode.Q))
@@ -54,12 +55,12 @@ public class BrewDebugger : MonoBehaviour
             var rowIndex = _rollingNumbers.Peek(1);
             var columnIndex = _rollingNumbers.Peek();
             Debug.Log($"Stirring counter-clockwise at ({rowIndex},{columnIndex})");
-            _brew.StirCounterclockwise(rowIndex, columnIndex);
+            BrewLogic.StirCounterclockwise(_brew.Contents, rowIndex, columnIndex);
         }
 
         if (Input.GetKeyDown(KeyCode.R))
         {
-            var settleResults = _brew.Settle();
+            var settleResults = BrewLogic.Settle(_brew.Contents);
             if (settleResults.Length == 0)
             {
                 Debug.Log("No change after settling the brew.");
@@ -77,7 +78,7 @@ public class BrewDebugger : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.F))
         {
-            var resolvedMatches = _brew.ResolveMatches();
+            var resolvedMatches = BrewLogic.ResolveMatches(_brew.Contents, _brew.MatchMap);
             if (resolvedMatches.Length == 0)
             {
                 Debug.Log("No matches found.");

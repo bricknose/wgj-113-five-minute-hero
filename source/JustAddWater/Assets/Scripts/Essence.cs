@@ -1,51 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using JustAddWater.Logic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Data", menuName = "ScriptableObjects/HeroEssence", order = 1)]
-public class Essence : ScriptableObject
+public class Essence : ScriptableObject, IEssence
 {
-    public int Value;
-    public EssenceType Type;
-
-    public enum EssenceType
+    [SerializeField]
+    private int _value;
+    public int Value
     {
-        Health = 1,
-        Attack = 2,
-        Defense = 3,
-        Magic = 4,
-        Resistance = 5,
-        Wild = 100
+        get => _value;
+        set => _value = value;
     }
 
-    public override string ToString()
-    {
-        return $"{GetEnumString(Type)}:{GetValueString(Value)}";
-    }
-
-    private static string GetEnumString(EssenceType type)
-    {
-        switch (type)
-        {
-            case EssenceType.Health:
-                return "HP";
-            case EssenceType.Attack:
-                return "AK";
-            case EssenceType.Defense:
-                return "DF";
-            case EssenceType.Magic:
-                return "MG";
-            case EssenceType.Resistance:
-                return "RS";
-            case EssenceType.Wild:
-                return "WD";
-            default:
-                return "??";
-        }
-    }
-
-    private static string GetValueString(int value)
-    {
-        return value >= 0 ? $"+{value}" : value.ToString();
+    [SerializeField]
+    private EssenceType _type;
+    public EssenceType Type {
+        get => _type;
+        set => _type = value;
     }
 }
