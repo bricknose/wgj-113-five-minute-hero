@@ -112,6 +112,21 @@ namespace LogicTests
         }
 
         [Fact]
+        public void ResolveMatches_WithMultipleMatches_FillsInMultipleMatchesAndReturnsMatchResults()
+        {
+
+        }
+
+
+        [Fact]
+        public void ResolveMatches_WithCompetingMatches_FillsInBestSingleMatchAndReturnsMatchResult()
+        {
+
+        }
+
+        #region Internal Tests
+
+        [Fact]
         public void PickBestMatch_WithNullSecondMatch_ReturnsFirstMatch()
         {
             var firstMatch = A.Fake<IEssenceMatch>();
@@ -346,6 +361,10 @@ namespace LogicTests
             matchResult.MatchCenterRowIndex.Should().Be(1);
         }
 
+        #endregion
+
+        #region Helpers
+
         public static IEnumerable<object[]> StirOffsetCombinations => GetOffsetParameterPair(3, 3);
 
         private static IEnumerable<object[]> GetOffsetParameterPair(int rows, int columns)
@@ -358,14 +377,6 @@ namespace LogicTests
                 }
             }
         }
-
-        //private static IEnumerable<object[]> GetOffsetParameter(int offsetCount)
-        //{
-        //    for (var offset = 0; offset < offsetCount; offset++)
-        //    {
-        //        yield return new object[] { offset };
-        //    }
-        //}
 
         private IEssence GetEssence(int value, EssenceType essenceType)
         {
@@ -387,5 +398,7 @@ namespace LogicTests
 
             return fakeEssenceMatch;
         }
+
+        #endregion
     }
 }

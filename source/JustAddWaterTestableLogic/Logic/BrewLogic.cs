@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("LogicTests")]
 namespace JustAddWater.Logic
 {
     public static class BrewLogic
@@ -54,32 +56,45 @@ namespace JustAddWater.Logic
             return settleList.ToArray();
         }
 
-        //public static MatchResult[] ResolveMatches(IEssence[] essences, Dictionary<IEssence, IEssenceMatch> matchMap)
-        //{
-        //    var results = new List<MatchResult>();
+        public static MatchResult[] ResolveMatches(EssenceArray essences, Dictionary<IEssence, IEssenceMatch> matchMap)
+        {
+            var results = new List<MatchResult>();
 
-        //    for (var rowIndex = 0; rowIndex < 3; rowIndex++)
-        //    {
-        //        for (var columnIndex = 0; columnIndex < 3; columnIndex++)
-        //        {
-        //            var bestHorizontalMatch = FindBestHorizontalMatch(essences, matchMap, rowIndex, columnIndex, columnIndex + 2);
-        //            var bestVerticalMatch = FindBestVerticalMatch(essences, matchMap, rowIndex, rowIndex + 2, columnIndex);
-        //            var bestMatch = FindBestMatch(bestHorizontalMatch, bestVerticalMatch);
-        //            if (bestMatch != null)
-        //            {
-        //                var resolvedMatch = bestMatch == bestHorizontalMatch
-        //                    ? ResolveMatch(essences, rowIndex, rowIndex, columnIndex, columnIndex + 2, bestMatch)
-        //                    : ResolveMatch(essences, rowIndex, rowIndex + 2, columnIndex, columnIndex, bestMatch);
+            for (var rowIndex = 0; rowIndex < 3; rowIndex++)
+            {
+                for (var columnIndex = 0; columnIndex < 3; columnIndex++)
+                {
+                    var columnEndIndex = columnIndex + 2;
+                    var rowEndIndex = rowIndex + 2;
 
-        //                results.Add(resolvedMatch);
-        //            }
-        //        }
-        //    }
+                    var columnRange = GetColumnEssences(essences, columnIndex, columnEndIndex, rowIndex);
+                    var rowRange = GetRowEssences(essences, columnIndex, rowIndex, rowEndIndex);
 
-        //    return results.ToArray();
-        //}
+                    var bestHorizontalMatch = FindBestMatch(columnRange, matchMap);
+                    var bestVerticalMatch = FindBestMatch(rowRange, matchMap);
 
-        public static IEssence[] GetColumnEssences(EssenceArray essences, int columnIndex, int rowStartIndex, int rowEndIndex)
+                    var bestMatch = PickBestMatch(bestHorizontalMatch, bestVerticalMatch);
+
+                    if (bestMatch == null)
+                    {
+                        continue;
+                    }
+
+                    var bestMatchRange = 
+                        bestMatch == bestHorizontalMatch 
+                            ? GetColumnRange(columnIndex, columnEndIndex, rowIndex) 
+                            : GetRowRange(columnIndex, rowIndex, rowEndIndex);
+
+                    var matchResult = PerformMatchReplacement(essences, bestMatchRange, bestMatch);
+
+                    results.Add(matchResult);
+                }
+            }
+
+            return results.ToArray();
+        }
+
+        internal static IEssence[] GetColumnEssences(EssenceArray essences, int columnIndex, int rowStartIndex, int rowEndIndex)
         {
             var rowRange = rowStartIndex.To(rowEndIndex);
             return rowRange
@@ -87,7 +102,7 @@ namespace JustAddWater.Logic
                 .ToArray();
         }
 
-        public static IEssence[] GetRowEssences(EssenceArray essences, int columnStartIndex, int columnEndIndex, int rowIndex)
+        internal static IEssence[] GetRowEssences(EssenceArray essences, int columnStartIndex, int columnEndIndex, int rowIndex)
         {
             var columnRange = columnStartIndex.To(columnEndIndex);
             return columnRange
@@ -95,7 +110,7 @@ namespace JustAddWater.Logic
                 .ToArray();
         }
 
-        public static IEssenceMatch FindBestMatch(IEssence[] essences, Dictionary<IEssence, IEssenceMatch> matchMap)
+        internal static IEssenceMatch FindBestMatch(IEssence[] essences, Dictionary<IEssence, IEssenceMatch> matchMap)
         {
             var possibleMatches = essences
                 .Where(essence => essence != null && matchMap.ContainsKey(essence))
@@ -118,7 +133,7 @@ namespace JustAddWater.Logic
             return null;
         }
 
-        public static IEssenceMatch PickBestMatch(IEssenceMatch firstMatch, IEssenceMatch secondMatch)
+        internal static IEssenceMatch PickBestMatch(IEssenceMatch firstMatch, IEssenceMatch secondMatch)
         {
             if (firstMatch == null)
                 return secondMatch;
@@ -129,21 +144,21 @@ namespace JustAddWater.Logic
             return Math.Abs(firstMatch.PrimaryMatch.Value) > Math.Abs(secondMatch.PrimaryMatch.Value) ? firstMatch : secondMatch;
         }
 
-        public static (int columnIndex, int rowIndex)[] GetColumnRange(int columnStartIndex, int columnEndIndex, int rowIndex)
+        internal static (int columnIndex, int rowIndex)[] GetColumnRange(int columnStartIndex, int columnEndIndex, int rowIndex)
         {
             return columnStartIndex.To(columnEndIndex)
                 .Select(thisColumnIndex => (thisColumnIndex, rowIndex))
                 .ToArray();
         }
 
-        public static (int columnIndex, int rowIndex)[] GetRowRange(int columnIndex, int rowStartIndex, int rowEndIndex)
+        internal static (int columnIndex, int rowIndex)[] GetRowRange(int columnIndex, int rowStartIndex, int rowEndIndex)
         {
             return rowStartIndex.To(rowEndIndex)
                 .Select(thisRowIndex => (columnIndex, thisRowIndex))
                 .ToArray();
         }
 
-        public static MatchResult PerformMatchReplacement(EssenceArray essences, (int columnIndex, int rowIndex)[] coordinates, IEssenceMatch match)
+        internal static MatchResult PerformMatchReplacement(EssenceArray essences, (int columnIndex, int rowIndex)[] coordinates, IEssenceMatch match)
         {
             var matchedEssences = new List<IEssence>();
 
