@@ -1,13 +1,9 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using Xunit;
 using FakeItEasy;
 using FluentAssertions;
 using JustAddWater.Logic;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Xunit;
 
 namespace LogicTests
 {
@@ -112,16 +108,114 @@ namespace LogicTests
         }
 
         [Fact]
+        public void ResolveMatches_WithNoMatchMatches_DoesNotChangeElementsAndReturnsNoResults()
+        {
+            var firstEssence = GetEssence(1, EssenceType.Attack);
+            var secondEssence = GetEssence(2, EssenceType.Defense);
+            var matchMap = new Dictionary<IEssence, IEssenceMatch>
+            {
+                { firstEssence, GetEssenceMatch(null, firstEssence) }
+            };
+            var essenceArray = new EssenceArray(3, new []
+            {
+                firstEssence, secondEssence, firstEssence,
+                secondEssence, firstEssence, secondEssence,
+                firstEssence, secondEssence, firstEssence
+            });
+
+            var result = BrewLogic.ResolveMatches(essenceArray, matchMap);
+
+            ((IEssence[]) essenceArray).Should().ContainInOrder
+            (
+                firstEssence, secondEssence, firstEssence, secondEssence, firstEssence, secondEssence, firstEssence, secondEssence, firstEssence
+            );
+            result.Length.Should().Be(0);
+        }
+
+        [Fact]
+        public void ResolveMatches_WithSingleMatch_FillsInMatchAndReturnsMatchResult()
+        {
+            var firstEssence = GetEssence(1, EssenceType.Attack);
+            var secondEssence = GetEssence(2, EssenceType.Defense);
+            var matchMap = new Dictionary<IEssence, IEssenceMatch>
+            {
+                { firstEssence, GetEssenceMatch(secondEssence, firstEssence) }
+            };
+            var essenceArray = new EssenceArray(3, new[]
+            {
+                firstEssence, firstEssence, firstEssence,
+                null, null, null,
+                null, null, null
+            });
+
+            var result = BrewLogic.ResolveMatches(essenceArray, matchMap);
+
+            ((IEssence[])essenceArray).Should().ContainInOrder
+            (
+                null, secondEssence, null,
+                null, null, null,
+                null, null, null
+            );
+            result.Length.Should().Be(1);
+        }
+
+        [Fact]
         public void ResolveMatches_WithMultipleMatches_FillsInMultipleMatchesAndReturnsMatchResults()
         {
+            var firstEssence = GetEssence(1, EssenceType.Attack);
+            var secondEssence = GetEssence(2, EssenceType.Defense);
+            var matchMap = new Dictionary<IEssence, IEssenceMatch>
+            {
+                { firstEssence, GetEssenceMatch(secondEssence, firstEssence) },
+                { secondEssence, GetEssenceMatch(firstEssence, secondEssence) }
+            };
+            var essenceArray = new EssenceArray(3, new[]
+            {
+                firstEssence, firstEssence, firstEssence,
+                secondEssence, null, null,
+                secondEssence, null, null,
+                secondEssence, null, null
+            });
 
+            var result = BrewLogic.ResolveMatches(essenceArray, matchMap);
+
+            ((IEssence[])essenceArray).Should().ContainInOrder
+            (
+                null, secondEssence, null,
+                null, null, null,
+                firstEssence, null, null,
+                null, null, null
+            );
+            result.Length.Should().Be(2);
         }
 
 
         [Fact]
         public void ResolveMatches_WithCompetingMatches_FillsInBestSingleMatchAndReturnsMatchResult()
         {
+            var firstEssence = GetEssence(1, EssenceType.Attack);
+            var secondEssence = GetEssence(2, EssenceType.Defense);
+            var matchMap = new Dictionary<IEssence, IEssenceMatch>
+            {
+                { firstEssence, GetEssenceMatch(secondEssence, firstEssence, secondEssence) },
+                { secondEssence, GetEssenceMatch(firstEssence, secondEssence, firstEssence) }
+            };
+            var essenceArray = new EssenceArray(3, new[]
+            {
+                firstEssence, firstEssence, firstEssence,
+                secondEssence, null, null,
+                secondEssence, null, null
+            });
 
+            var result = BrewLogic.ResolveMatches(essenceArray, matchMap);
+
+            ((IEssence[])essenceArray).Should().ContainInOrder
+            (
+                null, firstEssence, firstEssence,
+                firstEssence, null, null,
+                null, null, null
+            );
+            result.Length.Should().Be(1);
         }
 
         #region Internal Tests
@@ -251,7 +345,7 @@ namespace LogicTests
         }
 
         [Fact]
-        public void GetColumnEssences_Always_ReturnsColumnEssenceArray()
+        public void GetEssencesForColumn_Always_ReturnsArrayOfEssencesInColumn()
         {
             var firstEssence = GetEssence(1, EssenceType.Attack);
             var secondEssence = GetEssence(2, EssenceType.Attack);
@@ -262,14 +356,14 @@ namespace LogicTests
                 null, secondEssence, null
             });
 
-            var result = BrewLogic.GetColumnEssences(essenceArray, 1, 0, 2);
+            var result = BrewLogic.GetEsencesForColumn(essenceArray, 1, 0, 2);
 
             result.Length.Should().Be(3);
             result.Should().ContainInOrder(firstEssence, null, secondEssence);
         }
 
         [Fact]
-        public void GetRowEssences_Always_ReturnsRowEssenceArray()
+        public void GetEssencesForRow_Always_ReturnsArrayOfEssencesInRow()
         {
             var firstEssence = GetEssence(1, EssenceType.Attack);
             var secondEssence = GetEssence(2, EssenceType.Attack);
@@ -280,7 +374,7 @@ namespace LogicTests
                 null, null, null
             });
 
-            var result = BrewLogic.GetRowEssences(essenceArray, 0, 2, 1);
+            var result = BrewLogic.GetEssencesForRow(essenceArray, 0, 2, 1);
 
             result.Length.Should().Be(3);
             result.Should().ContainInOrder(firstEssence, null, secondEssence);
@@ -384,6 +478,7 @@ namespace LogicTests
 
             A.CallTo(() => fakeEssence.Value).Returns(value);
             A.CallTo(() => fakeEssence.Type).Returns(essenceType);
+            A.CallTo(() => fakeEssence.ToString()).Returns(fakeEssence.GetEssenceString());
 
             return fakeEssence;
         }

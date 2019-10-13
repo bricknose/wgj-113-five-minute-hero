@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
@@ -60,18 +61,18 @@ namespace JustAddWater.Logic
         {
             var results = new List<MatchResult>();
 
-            for (var rowIndex = 0; rowIndex < 3; rowIndex++)
+            for (var rowIndex = 0; rowIndex < essences.Rows - 2; rowIndex++)
             {
-                for (var columnIndex = 0; columnIndex < 3; columnIndex++)
+                for (var columnIndex = 0; columnIndex < essences.Columns - 2; columnIndex++)
                 {
                     var columnEndIndex = columnIndex + 2;
                     var rowEndIndex = rowIndex + 2;
 
-                    var columnRange = GetColumnEssences(essences, columnIndex, columnEndIndex, rowIndex);
-                    var rowRange = GetRowEssences(essences, columnIndex, rowIndex, rowEndIndex);
+                    var rangeInRow = GetEssencesForRow(essences, columnIndex, columnEndIndex, rowIndex);
+                    var rangeInColumn = GetEsencesForColumn(essences, columnIndex, rowIndex, rowEndIndex);
 
-                    var bestHorizontalMatch = FindBestMatch(columnRange, matchMap);
-                    var bestVerticalMatch = FindBestMatch(rowRange, matchMap);
+                    var bestHorizontalMatch = FindBestMatch(rangeInRow, matchMap);
+                    var bestVerticalMatch = FindBestMatch(rangeInColumn, matchMap);
 
                     var bestMatch = PickBestMatch(bestHorizontalMatch, bestVerticalMatch);
 
@@ -94,7 +95,7 @@ namespace JustAddWater.Logic
             return results.ToArray();
         }
 
-        internal static IEssence[] GetColumnEssences(EssenceArray essences, int columnIndex, int rowStartIndex, int rowEndIndex)
+        internal static IEssence[] GetEsencesForColumn(EssenceArray essences, int columnIndex, int rowStartIndex, int rowEndIndex)
         {
             var rowRange = rowStartIndex.To(rowEndIndex);
             return rowRange
@@ -102,7 +103,7 @@ namespace JustAddWater.Logic
                 .ToArray();
         }
 
-        internal static IEssence[] GetRowEssences(EssenceArray essences, int columnStartIndex, int columnEndIndex, int rowIndex)
+        internal static IEssence[] GetEssencesForRow(EssenceArray essences, int columnStartIndex, int columnEndIndex, int rowIndex)
         {
             var columnRange = columnStartIndex.To(columnEndIndex);
             return columnRange
@@ -206,15 +207,5 @@ namespace JustAddWater.Logic
 
             return rowsToSettle;
         }
-
-        //public static IEssence GetEssence(IEssence[] essences, int columns, int columnIndex, int rowIndex)
-        //{
-        //    return essences[rowIndex * columns + columnIndex];
-        //}
-
-        //public static void SetEssence(IEssence[] essences, int columns, int columnIndex, int rowIndex, IEssence essence)
-        //{
-        //    essences[rowIndex * columns + columnIndex] = essence;
-        //}
     }
 }
